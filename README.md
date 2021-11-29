@@ -80,7 +80,7 @@ Ubuntu 16.04 + KVM
 
 * Enter your virtual machine and use `unzip -d benchmark.zip` to unzip benchmark.zip. （进入到虚拟机中并使用`unzip -d benchmark.zip`解压test.tar.gz）
 
-* Test benchmarks. （测试Benchmark能否正常运行，不能的话需要安装相应依赖）
+* Run benchmarks. （测试Benchmark能否正常运行，不能的话需要安装相应依赖）
 
   ```bash
   # 1. Graph500
@@ -129,7 +129,7 @@ Ubuntu 16.04 + KVM
   ```
 
 ### 3. SmartMD evaluation
-**<font color='red'>Smarty needs the support of transparent huge pages, you can execute the command `sudo bash -c "echo always> /sys/kernel/mm/transparent_hugepage/enabled"` to enable it. In addition, you need to disable KSM when the machine starts, and this can be achieved by executing a startup script.</font>**
+**<font color='red'>SmartMD needs the support of transparent huge pages, you can execute the command `sudo bash -c "echo always> /sys/kernel/mm/transparent_hugepage/enabled"` to enable it. In addition, you need to disable KSM when the machine starts, and this can be achieved by executing a startup script.</font>**
 
 **<font color='red'>使用SmartMD需要开启透明大页，可以执行指令：`sudo bash -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"`来开启。此外，还需要关闭KSM的开机运行，可以执行开机脚本来关闭KSM。</font>**
 
