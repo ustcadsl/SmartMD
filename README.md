@@ -2,7 +2,7 @@
 SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper has been published in ATC'17.
 
 
-### 1. SmartMD installation
+### 1. SmartMD安装
 
 * 下载并解压3.14.69内核源码。
 
@@ -49,7 +49,18 @@ SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper ha
   # 方法二：修改/etc/default/grub文件
   # 查询新编译的内核是否成功安装，执行如下指令：
   grep -A100 submenu  /boot/grub/grub.cfg |grep "Ubuntu, with Linux 3.14.69"
-  # 如果上述指令执行的结果中出现Ubuntu, with Linux 3.14.69则说明内核安装成功，接下来设置启动内核为3.14.69，只需要将内容修改为图1所示。然后再继续执行如下指令：
+  # 如果上述指令执行的结果中出现Ubuntu, with Linux 3.14.69则说明内核安装成功，接下来设置启动内核为3.14.69，只需要将内容修改为下面#<<<之间的内容即可。
+  #<<<
+  GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 3.14.69"
+  #GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 4.4.0"
+  #GRUB_HIDDEN_TIMEOUT="5"
+  GRUB_HIDDEN_TIMEOUT_QUIET="true"
+  GRUB_TIMEOUT="10"
+  GRUB_DISTRIBUTOR="`lsb_release -i -s 2> /dev/null || echo Debian`"
+  GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+  GRUB_CMDLINE_LINUX=""
+  #<<<
+  # 最后继续执行如下指令：
   sudo update-grub
   ```
 
@@ -115,7 +126,7 @@ SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper ha
 
 ### 3. SmartMD使用与性能测试
 
-**<font color='red'>使用SmartMD需要开启透明大页，可以执行指令：`sudo bash -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"来开启。此外，还需要关闭KSM的开机运行，可以执行开机脚本来关闭KSM。`</font>**
+**<font color='red'>使用SmartMD需要开启透明大页，可以执行指令：`sudo bash -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"`来开启。此外，还需要关闭KSM的开机运行，可以执行开机脚本来关闭KSM。</font>**
 
 虚拟机CPU绑定配置：
 
@@ -149,4 +160,3 @@ sudo bash -c "echo 1 >/sys/kernel/mm/ksm/run" # 注意：需要关闭KSM开机�
 ```
 
 **<font color='red'>SmartMD的设计细节请参考[论文](https://www.usenix.org/conference/atc17/technical-sessions/presentation/guo-fan)</font>**。
-
