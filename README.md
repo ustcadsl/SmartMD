@@ -1,55 +1,56 @@
 # SmartMD
 SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper has been published in ATC'17.
 
+### 0. Environment
+Ubuntu 16.04 + KVM
 
-### 1. SmartMD安装
+### 1. SmartMD Installion
 
-* 下载并解压3.14.69内核源码。
+* Download and unzip the 3.14.69 linux kernel source code. （下载并解压3.14.69内核源码）
 
   ```bash
   cd ~
-  # 下载源码
+  # Download
   wget https://cdn.kernel.org/pub/linux/kernel/v3.x/linux-3.14.69.tar.xz
-  # 解压
+  # Unzip
   tar -xvf linux-3.14.69.tar.xz
   ```
 
-* 更换内存重删模块代码为SmartMD的代码。
+* Change the code of the memory deduplication module to the code of SmartMD. （更换内存重删模块代码为SmartMD的代码）
 
   ```bash
-  cd linux-3.14.69/mm
+  git clone https://github.com/ustcadsl/SmartMD.git
+  cd ~/linux-3.14.69/mm
   mv ksm.c ksm-ori.c 
   mv migrate.c migrate-ori.c
-  mv ../include/linux/migrate.h migrate-ori.h
+  cd ../include/linux/ && mv migrate.h migrate-ori.h
   
-  cp ~/smartmd/smartmd.c ksm.c
-  cp ~/smartmd/migrate.c migrate.c
-  cp ~/smartmd/migrate.h ~/linux-3.14.69/include/linux/migrate.h
+  cp ~/SmartMD/src/ksm.c ksm.c
+  cp ~/SmartMD/src/migrate.c migrate.c
+  cp ~/SmartMD/src/migrate.h ~/linux-3.14.69/include/linux/migrate.h
   ```
 
-* 编译内核。
+* Compile your kernel. （编译内核）
 
   ```bash
-  cp smartmd/.config linux-3.14.69/ #这一步也可以使用make menuconfig命令来选择并生成配置，smartmd使用的是默认的内核配置
-  # 进入到目录linux-3.14.69中
-  cd ../
-  # 编译内核
+  cp ~/SmartMD/src/.config  ~/linux-3.14.69/ 
+  cd ~/linux-3.14.69/ 
   sudo make -j`getconf _NPROCESSORS_ONLN` && sudo make modules_install -j`getconf _NPROCESSORS_ONLN` && sudo make install
   ```
 
-* 修改启动的内核版本为3.14.69。
+* Modify the booted kernel version to 3.14.69. （修改启动的内核版本为3.14.69）
 
   ```bash
-  # 方法一：安装grub-customizer，Ubuntu 16可以使用如下指令安装：
+  # Method 1: install grub-customizer
   sudo add-apt-repository ppa:danielrichter2007/grub-customizer
   sudo apt-get update
   sudo apt-get install grub-customizer
-  grub-customizer # 这一步会弹出图形界面，可以选择优先启动的内核版本
+  grub-customizer # This step will pop up a graphical interface, you can choose the kernel version to start first. （这一步会弹出图形界面，可以选择优先启动的内核版本）
   
-  # 方法二：修改/etc/default/grub文件
-  # 查询新编译的内核是否成功安装，执行如下指令：
+  # Method 2: update /etc/default/grub
+  # Check whether the newly compiled kernel is successfully installed
   grep -A100 submenu  /boot/grub/grub.cfg |grep "Ubuntu, with Linux 3.14.69"
-  # 如果上述指令执行的结果中出现Ubuntu, with Linux 3.14.69则说明内核安装成功，接下来设置启动内核为3.14.69，只需要将内容修改为下面#<<<之间的内容即可。
+  # The correct results is "Ubuntu, with Linux 3.14.69". Next, update /etc/default/grub with following contents. 如果结果中出现Ubuntu, with Linux 3.14.69则说明内核安装成功，接下来设置启动内核为3.14.69，只需要将内容修改为下面#<<<之间的内容即可。
   #<<<
   GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 3.14.69"
   #GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 4.4.0"
@@ -60,15 +61,15 @@ SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper ha
   GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
   GRUB_CMDLINE_LINUX=""
   #<<<
-  # 最后继续执行如下指令：
+  # Enable configuration. （最后继续执行如下指令以启用配置）
   sudo update-grub
   ```
 
-* **重启机器**，执行`sudo reboot`指令。
+* Use `sudo reboot` to reboot your machine （执行`sudo reboot`指令重启机器）
 
-* 机器重启后，使用`uname -a`来查看当前的版本是否为3.14.69。
+* After the machine restarts, use `uname -a` to check whether the current kernel version is 3.14.69. （机器重启后，使用`uname -a`来查看当前的版本是否为3.14.69）
 
-### 2. Benchmark安装
+### 2. Benchmark installion
 
 **Benchmark信息请参考[论文](https://www.usenix.org/conference/atc17/technical-sessions/presentation/guo-fan)**。
 
@@ -86,7 +87,9 @@ SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper ha
   ./seq-csr/seq-csr -s 22 -e 16 # 此应用的主要关注的指标为harmonic_mean_TEPS，越大越好。
   
   # 2. 测试liblinear-2.1
-  cd ~/liblinear-2.1 && time ./train -s 7 url_combined # 此应用的主要关注指标为运行时长，越短越好。
+  cd ~/liblinear-2.1 && wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/url_combined.bz2
+  bzip2 -d url_combined.bz2
+  time ./train -s 7 url_combined # 此应用的主要关注指标为运行时长，越短越好。
   
   # 3. 测试SPECjbb2005-master
   cd ~/SPECjbb2005-master 
