@@ -4,7 +4,7 @@ SmartMD: A High Performance Deduplication  Engine with Mixed Pages. Our paper ha
 ### 0. Environment
 Ubuntu 16.04 + KVM
 
-### 1. SmartMD Installion
+### 1. SmartMD installation
 
 * Download and unzip the 3.14.69 linux kernel source code. （下载并解压3.14.69内核源码）
 
@@ -69,65 +69,66 @@ Ubuntu 16.04 + KVM
 
 * After the machine restarts, use `uname -a` to check whether the current kernel version is 3.14.69. （机器重启后，使用`uname -a`来查看当前的版本是否为3.14.69）
 
-### 2. Benchmark installion
+### 2. Benchmark installation
 
-**Benchmark信息请参考[论文](https://www.usenix.org/conference/atc17/technical-sessions/presentation/guo-fan)**。
+**For benchmark information, please see[our paper](https://www.usenix.org/conference/atc17/technical-sessions/presentation/guo-fan)**。
 
-**Benchmark安装过程如下：**
+**The Benchmark installation process is as follows. （Benchmark安装过程如下）**
 
-* 将test.tar.gz通过scp拷贝到虚拟机中。
+* Copy benchmark.zip to the virtual machine through the scp command. （将benchmark.zip通过scp拷贝到虚拟机中）
 
-* 进入到虚拟机中并使用`tar -xvf test.tar.gz`解压test.tar.gz。
+* Enter your virtual machine and use `unzip -d benchmark.zip` to unzip benchmark.zip. （进入到虚拟机中并使用`unzip -d benchmark.zip`解压test.tar.gz）
 
-* 测试Benchmark能否正常运行，不能的话需要安装相应依赖。
+* Test benchmarks. （测试Benchmark能否正常运行，不能的话需要安装相应依赖）
 
   ```bash
-  # 1. 测试graph500
+  # 1. Test graph500
   cd ~/graph500-master && make
-  ./seq-csr/seq-csr -s 22 -e 16 # 此应用的主要关注的指标为harmonic_mean_TEPS，越大越好。
+  ./seq-csr/seq-csr -s 22 -e 16 # The main indicator of this application is harmonic_mean_TEPS, the bigger the better. （此应用的主要关注的指标为harmonic_mean_TEPS，越大越好）
   
-  # 2. 测试liblinear-2.1
+  # 2. Test liblinear-2.1
   cd ~/liblinear-2.1 && wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/url_combined.bz2
   bzip2 -d url_combined.bz2
-  time ./train -s 7 url_combined # 此应用的主要关注指标为运行时长，越短越好。
+  time ./train -s 7 url_combined # The main indicator of this application is the execution time, the shorter the better. （此应用的主要关注指标为运行时长，越短越好）
   
-  # 3. 测试SPECjbb2005-master
+  # 3. Test SPECjbb2005-master
   cd ~/SPECjbb2005-master 
-  # 首先根据个人需求修改SPECjbb.props文件进行配置，也可以直接用我们已经配置好的
-  # 其次运行benchmark
+  # Modify the SPECjbb.props file to configure according to personal needs, or you can directly use what we have configured. （首先根据个人需求修改SPECjbb.props文件进行配置，也可以直接用我们已经配置好的）
+  # Run benchmark
   chmod +x run.sh && ./run.sh
   
-  #4. 测试sysbench-0.4.8
+  #4. Test sysbench-0.4.8
   sudo apt-get install mysql-server
-  #修改mysql配置文件,vim /etc/mysql/mysql.conf.d/mysqld.cnf或者vim /etc/mysql/my.cnf，根据自己需求而定
+  # update mysql configuration, just `vim /etc/mysql/mysql.conf.d/mysqld.cnf` or `vim /etc/mysql/my.cnf` （更新mysql的配置文件/etc/mysql/mysql.conf.d/mysqld.cnf或/etc/mysql/my.cnf）
   sudo service mysql restart
   sudo apt-get install sysbench
-  #进入mysql数据库
+  # Enter mysql （进入mysql中）
   mysql -u root -p
-  #创建数据库
+  # Create database. （创建数据库）
   create database sbtest;
-  exit #退出mysql数据库
-  #创建测试数据，记得修改下面指令中mysql的密码
+  exit #Exit the mysql database. （退出mysql数据库）
+  # Create test data, remember to modify the mysql password in the following command. （创建测试数据，记得修改下面指令中mysql的密码）
   sysbench --test=oltp --oltp-test-mode=nontrx --mysql-table-engine=innodb --
   mysql-user=root --db-driver=mysql --num-threads=8 --max-requests=5000000 --
   oltp-nontrx-mode=select --mysql-db=sbtest --oltp-table-size=7000000 --oltptable-name=sbtest --mysql-host=127.0.0.1 --mysqlsocket=/var/run/mysqld/mysqld.sock --mysql-password=123 prepare
-  #进行测试，同样记得修改下面指令中mysql的密码
+  # Test, also remember to modify the mysql password in the following command. （进行测试，同样记得修改下面指令中mysql的密码）
   time sysbench --test=oltp --oltp-test-mode=nontrx --mysql-table-engine=innodb --
   mysql-user=root --db-driver=mysql --num-threads=8 --max-requests=5000000 --
   oltp-nontrx-mode=select --mysql-db=sbtest --oltp-table-size=7000000 --oltptable-name=sbtest --mysql-host=127.0.0.1 --mysqlsocket=/var/run/mysqld/mysqld.sock --mysql-password=123 run
-  #注：性能指标为每秒处理的事务数
-  #如果需要提前将测试数据读入内存，可以使用如下指令
-  mysql -u root -p #进入MySQL数据库
-  use sbtest; #进入sbtest database
+  # Note: The performance indicator is the number of transactions processed per second. （注：性能指标为每秒处理的事务数）
+  # If you need to read the test data into the memory in advance, you can use the following command.  （如果需要提前将测试数据读入内存，可以使用如下指令）
+  mysql -u root -p 
+  use sbtest; 
   select count(id) from (select * from sbtest) aa;
-  #如果需要重新创建测试数据，需要先删除原先的数据
+  # If you need to recreate the test data, just delete the original data first. （如果需要重新创建测试数据，需要先删除原先的数据）
   drop table sbtest;
-  #查看cache hit情况可以使用如下指令
+  # To view the cache hit situation, you can use the following commands. （查看cache hit情况可以使用如下指令）
   show global status like 'innodb%read%';
-  exit #退出MySQL数据库
+  exit 
   ```
 
-### 3. SmartMD使用与性能测试
+### 3. SmartMD evaluation
+**<font color='red'>Smarty needs the support of transparent huge pages, you can execute the command `sudo bash -c "echo always> /sys/kernel/mm/transparent_hugepage/enabled"` to enable it. In addition, you need to disable KSM at machine startup,  and you can execute a startup script to turn off KSM.</font>**
 
 **<font color='red'>使用SmartMD需要开启透明大页，可以执行指令：`sudo bash -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"`来开启。此外，还需要关闭KSM的开机运行，可以执行开机脚本来关闭KSM。</font>**
 
@@ -158,8 +159,8 @@ do
 	ssh vm0$i cd ~/graph500-master && ./seq-csr/seq-csr -s 22 -e 16 > graph.out
 done
 # 2.运行KSM
-sudo bash -c "echo 1 >/sys/kernel/mm/ksm/run" # 注意：需要关闭KSM开机运行
-# 3.等待所有的benchmark运行结束后收集结果
+sudo bash -c "echo 1 >/sys/kernel/mm/ksm/run" # Note: 注意：需要关闭KSM开机运行
+# 3. Collect all results. （等待所有的benchmark运行结束后收集结果）
 ```
 
-**<font color='red'>SmartMD的设计细节请参考[论文](https://www.usenix.org/conference/atc17/technical-sessions/presentation/guo-fan)</font>**。
+**<font color='red'>More design detail, please see our [paper](https://www.usenix.org/conference/atc17/technical-sessions/presentation/guo-fan)</font>**。
