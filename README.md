@@ -82,22 +82,22 @@ Ubuntu 16.04 + KVM
 * Test benchmarks. （测试Benchmark能否正常运行，不能的话需要安装相应依赖）
 
   ```bash
-  # 1. Test graph500
+  # 1. Graph500
   cd ~/graph500-master && make
   ./seq-csr/seq-csr -s 22 -e 16 # The main indicator of this application is harmonic_mean_TEPS, the bigger the better. （此应用的主要关注的指标为harmonic_mean_TEPS，越大越好）
   
-  # 2. Test liblinear-2.1
+  # 2. Liblinear-2.1
   cd ~/liblinear-2.1 && wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/url_combined.bz2
   bzip2 -d url_combined.bz2
   time ./train -s 7 url_combined # The main indicator of this application is the execution time, the shorter the better. （此应用的主要关注指标为运行时长，越短越好）
   
-  # 3. Test SPECjbb2005-master
+  # 3. SPECjbb2005-master
   cd ~/SPECjbb2005-master 
   # Modify the SPECjbb.props file to configure according to personal needs, or you can directly use what we have configured. （首先根据个人需求修改SPECjbb.props文件进行配置，也可以直接用我们已经配置好的）
   # Run benchmark
   chmod +x run.sh && ./run.sh
   
-  #4. Test sysbench-0.4.8
+  #4. Sysbench-0.4.8
   sudo apt-get install mysql-server
   # update mysql configuration, just `vim /etc/mysql/mysql.conf.d/mysqld.cnf` or `vim /etc/mysql/my.cnf` （更新mysql的配置文件/etc/mysql/mysql.conf.d/mysqld.cnf或/etc/mysql/my.cnf）
   sudo service mysql restart
@@ -128,38 +128,39 @@ Ubuntu 16.04 + KVM
   ```
 
 ### 3. SmartMD evaluation
-**<font color='red'>Smarty needs the support of transparent huge pages, you can execute the command `sudo bash -c "echo always> /sys/kernel/mm/transparent_hugepage/enabled"` to enable it. In addition, you need to disable KSM at machine startup,  and you can execute a startup script to turn off KSM.</font>**
+**<font color='red'>Smarty needs the support of transparent huge pages, you can execute the command `sudo bash -c "echo always> /sys/kernel/mm/transparent_hugepage/enabled"` to enable it. In addition, you need to disable KSM when the machine starts, and this can be achieved by executing a startup script.</font>**
 
 **<font color='red'>使用SmartMD需要开启透明大页，可以执行指令：`sudo bash -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"`来开启。此外，还需要关闭KSM的开机运行，可以执行开机脚本来关闭KSM。</font>**
 
-虚拟机CPU绑定配置：
+Virtual machine CPU pinning configuration: （虚拟机CPU绑定配置）
 
 ```bash
-# 1. 可以通过修改/etc/libvirt/qemu/xxx.xml文件完成，其中xxx表示虚拟机的名称。比如将vm01的vcpu绑定到物理core 0上，可以第13内容如下，而其他内容无需改动:
+# 1. Update /etc/libvirt/qemu/xxx.xml, where xxx represents the name of the virtual machine. For example, if you want to bind the vcpu of vm01 to physical core 0, just modify the 13th content of vm01.xml as follows, and the other content does not need to be changed. （可以通过修改/etc/libvirt/qemu/xxx.xml文件完成，其中xxx表示虚拟机的名称。比如将vm01的vcpu绑定到物理core 0上，可以第13内容如下，而其他内容无需改动）
+
 <vcpu placement='static' cpuset='0'>1</vcpu> 
 
-# 2. 应用修改好的xml配置
+# 2. Enable configuration. （应用修改好的xml配置）
 virsh define vm01.xml
 ```
 
-SmartMD运行过程中的配置：
+Configure SmartMD. （SmartMD运行过程中的配置）
 
 ```bash
 echo 1024 >/sys/kernel/mm/ksm/pages_to_scan
 echo 20 >/sys/kernel/mm/ksm/sleep_millisecs
-echo 2600 >/sys/kernel/mm/ksm/merge_sleep_millisecs # 即论文中的check_interval
+echo 2600 >/sys/kernel/mm/ksm/merge_sleep_millisecs # That is, check_interval in the paper. （即论文中的check_interval）
 ```
 
-开始跑实验进行测试：
+Experiments. （开始跑实验进行测试）
 
 ```bash
-# 1. 使用ssh连接4个VM，然后同时运行4个VM中的benchmark，注意每一次测试中各个VM中只运行1个benchmark且各个VM运行相同的benchmark，此处以graph500为例，可以使用类似下面的脚本：
+# 1. Ssh to 4 VMs, and then run the benchmarks in the 4 VMs at the same time. Here is graph500 as an example. You can use a script similar to the following.  （使用ssh连接4个VM，然后同时运行4个VM中的benchmark，注意每一次测试中各个VM中只运行1个benchmark且各个VM运行相同的benchmark，此处以graph500为例，可以使用类似下面的脚本）
 for i in `seq 1 4`
 do
 	ssh vm0$i cd ~/graph500-master && ./seq-csr/seq-csr -s 22 -e 16 > graph.out
 done
-# 2.运行KSM
-sudo bash -c "echo 1 >/sys/kernel/mm/ksm/run" # Note: 注意：需要关闭KSM开机运行
+# 2. Enable KSM. （运行KSM）
+sudo bash -c "echo 1 >/sys/kernel/mm/ksm/run"
 # 3. Collect all results. （等待所有的benchmark运行结束后收集结果）
 ```
 
