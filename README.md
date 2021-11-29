@@ -29,7 +29,7 @@ Ubuntu 16.04 + KVM
   cp ~/SmartMD/src/ksm.c ksm.c
   cp ~/SmartMD/src/migrate.c migrate.c
   cp ~/SmartMD/src/migrate.h ~/linux-3.14.69/include/linux/migrate.h
-  cp ~/SmartMD/src/.config  ~/linux-3.14.69/
+  cp ~/SmartMD/src/config  ~/linux-3.14.69/.config
   ```
 
 * Compile your kernel. （编译内核）
