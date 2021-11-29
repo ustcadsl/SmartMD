@@ -25,15 +25,16 @@ Ubuntu 16.04 + KVM
   mv migrate.c migrate-ori.c
   cd ../include/linux/ && mv migrate.h migrate-ori.h
   
+  cd ~/linux-3.14.69/mm
   cp ~/SmartMD/src/ksm.c ksm.c
   cp ~/SmartMD/src/migrate.c migrate.c
   cp ~/SmartMD/src/migrate.h ~/linux-3.14.69/include/linux/migrate.h
+  cp ~/SmartMD/src/.config  ~/linux-3.14.69/
   ```
 
 * Compile your kernel. （编译内核）
 
   ```bash
-  cp ~/SmartMD/src/.config  ~/linux-3.14.69/ 
   cd ~/linux-3.14.69/ 
   sudo make -j`getconf _NPROCESSORS_ONLN` && sudo make modules_install -j`getconf _NPROCESSORS_ONLN` && sudo make install
   ```
