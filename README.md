@@ -26,10 +26,10 @@ Ubuntu 16.04 + KVM
   cd ../include/linux/ && mv migrate.h migrate-ori.h
   
   cd ~/linux-3.14.69/mm
-  cp ~/SmartMD/src/ksm.c ksm.c
-  cp ~/SmartMD/src/migrate.c migrate.c
-  cp ~/SmartMD/src/migrate.h ~/linux-3.14.69/include/linux/migrate.h
-  cp ~/SmartMD/src/config  ~/linux-3.14.69/.config
+  cp ~/SmartMD/kernel-v3.14.69/ksm-smartmd.c ksm.c
+  cp ~/SmartMD/kernel-v3.14.69/migrate-smartmd.c migrate.c
+  cp ~/SmartMD/kernel-v3.14.69/migrate.h ~/linux-3.14.69/include/linux/migrate.h
+  cp ~/SmartMD/kernel-v3.14.69/config  ~/linux-3.14.69/.config
   ```
 
 * Compile your kernel. （编译内核）
@@ -69,6 +69,10 @@ Ubuntu 16.04 + KVM
 * Use `sudo reboot` to reboot your machine （执行`sudo reboot`指令重启机器）
 
 * After the machine restarts, use `uname -a` to check whether the current kernel version is 3.14.69. （机器重启后，使用`uname -a`来查看当前的版本是否为3.14.69）
+
+
+ **Note: we ported SmartMD to Linux 4.3 and Linux 5.10, and installed it in the same way as Linux 3.14.69.**
+
 
 ### 2. Benchmark installation
 
