@@ -21,6 +21,7 @@
   cp SmartMD/kernel-v5.10/HawkEye/include/linux/* linux-5.10/include/linux
   cp SmartMD/kernel-v5.10/HawkEye/events/mmflags.h linux-5.10/events
   cp SmartMD/kernel-v5.10/HawkEye/arch/x86/entry/syscalls/syscall_64.tbl linux-5.10/arch/x86/entry/syscalls/
+  cp -R SmartMD/kernel-v5.10/HawkEye/hawkeye_modules linux-5.10
   ```
 
 * Compile HawkEye.
@@ -63,4 +64,23 @@
 * After the machine restarts, use `uname -a` to check whether the current kernel version is Linux 5.10.0-HawkEye.
 
 ## 2 Run HawkEye
-* 
+
+* Compile HawkEye module.
+
+  ```bash
+  cd linux-5.10/hawkeye_modules/async-zero
+  make
+  sudo insmod asynczero.ko &
+  cd ../bloat_recovery
+  make 
+  sudo insmod detect.ko
+  ```
+
+* Run HawkEye.
+
+  ```bash
+  sudo bash -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"
+  sudo bash -c "echo 100 > /sys/kernel/mm/transparent_hugepage/khugepaged/max_cpu"
+  ```
+
+Next, please refer to <https://github.com/ustcadsl/SmartMD> for the steps of the SmartMD Evaluation.
